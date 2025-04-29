@@ -41,7 +41,7 @@ export class RoomService {
   }
 
   getRoomUsers(roomName: string): User[] {
-    return this.rooms.get(roomName);
+    return this.rooms.get(roomName) ?? [];
   }
 
   getUsersCount(roomName: string): number {
@@ -62,5 +62,28 @@ export class RoomService {
 
   getMessagesCount(roomId: string): number {
     return this.messages.filter((m) => m.chatRoom === roomId).length;
+  }
+
+  findUserByNickname(nickname: string): User | undefined {
+    for (const users of this.rooms.values()) {
+      const user = users.find((u) => u.nickname === nickname);
+      if (user) {
+        return user;
+      }
+    }
+    return undefined;
+  }
+
+  findAvailableSingleRoom(baseName: string): string | null {
+    for (const [roomName, users] of this.rooms.entries()) {
+      if (
+        roomName.startsWith(baseName) &&
+        users[0]?.chatMode === 'single' &&
+        users.length < 2
+      ) {
+        return roomName;
+      }
+    }
+    return null;
   }
 }
